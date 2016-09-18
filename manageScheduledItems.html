@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<body ng-app="myApp">
+	
+		<div ng-controller="scheduledITemsCtrl" data-ng-init="getData()">
+
+			<table>
+				<tr ng-repeat="x in items">
+					<td>Title: {{ x.title }}</td>
+					<td>Time: {{ x.startingHour[0]}}:{{ x.startingHour[1]}}</td>
+					<td>Time: {{x.endingHour[0]}}:{{x.endingHour[1]}}</td>
+					<td><input type="checkbox" ng-model="editItem">
+
+<div ng-show="editItem">
+
+<input type="button" value="update"/>
+<input type="button" value="delete" ng-click="deleteItem(x.id)"/>
+</div></td>
+				</tr>
+			</table>
+
+			<form>
+				Title: <input type="text" ng-model="title" /> <br /> Begin Hour: <input
+					type="text" ng-model="startingHour" /> <br /> End Hour: <input
+					type="text" ng-model="endingHour" /> <br /> Sequence Id: <input
+					type="text" ng-model="sequenceId" /> 
+					<input type="button"
+					value="verstuur" ng-click="insertdata()" />
+
+			</form>
+		</div>
+	
+
+
+	<script>
+	
+	
+	
+		var app = angular.module('myApp', []);
+		app.controller('scheduledITemsCtrl', function($scope, $http) {
+			$scope.getData = function(){
+			$http.get("http://localhost:8080/getScheduledItems").then(
+					function(response) {
+						$scope.items = response.data;
+					});
+			};
+			
+			$scope.deleteItem = function(id) {
+				$http.post("http://localhost:8080/deleteScheduledItem", {
+					'id' : id
+				}).success(function(data, status, headers, config) {
+					console.log("data met succes verwijderd");
+					console.log(data)
+					$scope.getData();
+					
+				}).error(function(data, status, headers, config) {
+					console.log("data niet verwijderd");
+					console.log(data);
+				});
+			
+
+			};
+			
+			$scope.insertdata = function() {
+				console.log($scope.title);
+				$http.post("http://localhost:8080/addScheduledItem", {
+					'title' : $scope.title,
+					'startingHour' : $scope.startingHour,
+					'endingHour' : $scope.endingHour,
+					'sequenceId' : $scope.sequenceId
+				}).success(function(data, status, headers, config) {
+					console.log("data met succes toegevoegd");
+					console.log(data)
+					$scope.getData();
+					
+				});
+
+			};
+		});
+	</script>
+	
+	
+	
+
+</body>
+</html>
